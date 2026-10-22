@@ -1,0 +1,53 @@
+
+name: Compilar APK Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Obter código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências do sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git zip unzip \
+            autoconf libtool pkg-config \
+            zlib1g-dev libncurses5-dev \
+            libncursesw5-dev libtinfo6 \
+            cmake libffi-dev libssl-dev
+
+      - name: Instalar Buildozer
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install "Cython<3" buildozer
+     
+      - name: Compilar APK
+        run: yes | buildozer -v android debug
+
+      - name: Guardar APK compilado
+        uses: actions/upload-artifact@v4
+        with:
+          name: TECNO-FREITAS-APK
+          path: bin/*.apk
+          if-no-files-found: error
