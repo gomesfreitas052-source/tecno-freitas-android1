@@ -1,0 +1,1 @@
+# tecno-freitas-android1
